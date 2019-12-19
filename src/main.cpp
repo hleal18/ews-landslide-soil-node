@@ -24,7 +24,8 @@ enum Variable_Type
 };
 
 const int epoch_size = 1;
-unsigned int variable_type = SOIL_MOISTURE;
+uint8_t variable_type = SOIL_MOISTURE;
+uint8_t id_sensor = 3;
 const uint8_t soil_m_pin = 35;
 SoilMoisture soil_moisture_sensor(soil_m_pin);
 
@@ -75,9 +76,10 @@ void onEvent(ev_t ev)
 void do_send(osjob_t *j)
 {
 
-    uint8_t arrBuff[epoch_size + 1];
+    uint8_t arrBuff[epoch_size + 2];
 
-    arrBuff[0] = variable_type;
+    arrBuff[0] = id_sensor;
+    arrBuff[1] = variable_type;
 
     uint16_t soil_moisture_adc = soil_moisture_sensor.get_soil_moisture_reading();
     int8_t soil_moisture_value = map(soil_moisture_adc, minADC, maxADC, 0, 100);
@@ -85,7 +87,7 @@ void do_send(osjob_t *j)
 
     Serial.print("Soil: ");
     Serial.println(soil_moisture_value);
-    arrBuff[1] = soil_moisture_value;
+    arrBuff[2] = soil_moisture_value;
 
     LMIC_setTxData2(1, arrBuff, sizeof(arrBuff), 0);
     Serial.println(F("Packet queued"));
